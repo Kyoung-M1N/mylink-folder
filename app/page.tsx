@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { DUMMY_LINKS, LinkProps } from '@/data/links';
+import { LinkProps } from '@/data/links';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,15 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
+import { db } from '@/lib/firebase';
+import { 
+  collection, 
+  addDoc, 
+  onSnapshot, 
+  query, 
+  orderBy,
+  serverTimestamp 
+} from 'firebase/firestore';
 
 // 도메인 형식을 포함한 더 엄격한 URL 정규식
 // (http(s)://) 유무와 상관없이 최소 '문자열.문자열' (TLD 포함) 형태를 검증
@@ -40,8 +49,27 @@ const linkSchema = z.object({
 type LinkFormValues = z.infer<typeof linkSchema>;
 
 export default function Page() {
-  const [links, setLinks] = useState<LinkProps[]>(DUMMY_LINKS);
+  const [links, setLinks] = useState<LinkProps[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Firestore에서 링크 목록 가져오기 (실시간 리스너)
+  useEffect(() => {
+    const linksRef = collection(db, 'users', 'anonymous', 'links');
+    const q = query(linksRef, orderBy('createdAt', 'desc'));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedLinks = snapshot.docs.map((doc) => ({
+        id: doc.id as unknown as number, // Firestore ID 사용 (타입 호환을 위해 캐스팅)
+        ...doc.data(),
+      })) as LinkProps[];
+      
+      setLinks(fetchedLinks);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const {
     register,
@@ -61,13 +89,13 @@ export default function Page() {
     }
   };
 
-  const onSubmit = (data: LinkFormValues) => {
+  const onSubmit = async (data: LinkFormValues) => {
     let finalUrl = data.url;
     if (!/^https?:\/\//i.test(finalUrl)) {
       finalUrl = 'https://' + finalUrl;
     }
 
-    // 간단한 파비콘 추출 로직 (로컬 목업용)
+    // 간단한 파비콘 추출 로직
     let domain = '';
     try {
       domain = new URL(finalUrl).hostname;
@@ -76,19 +104,22 @@ export default function Page() {
     }
     const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
 
-    const newLink: LinkProps = {
-      id: Date.now(), // 자동 생성 숫자 식별항목
-      title: data.title,
-      url: finalUrl,
-      faviconUrl,
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const linksRef = collection(db, 'users', 'anonymous', 'links');
+      await addDoc(linksRef, {
+        title: data.title,
+        url: finalUrl,
+        faviconUrl,
+        createdAt: serverTimestamp(),
+      });
 
-    setLinks((prev) => [newLink, ...prev]);
-    
-    // 상태 초기화 및 폼 닫기
-    reset();
-    setIsOpen(false);
+      // 상태 초기화 및 폼 닫기
+      reset();
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error adding link: ", error);
+      alert("링크 추가 중 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -164,7 +195,11 @@ export default function Page() {
 
         {/* Links Section */}
         <div className="flex flex-col gap-4">
-          {links.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center text-muted-foreground p-8">
+              링크를 불러오는 중...
+            </div>
+          ) : links.length === 0 ? (
             <div className="text-center text-muted-foreground p-8 bg-card/30 rounded-2xl border border-dashed border-border">
               등록된 링크가 없습니다.
             </div>
