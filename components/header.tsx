@@ -13,9 +13,26 @@ import {
 import { ChevronDown, Copy, ExternalLink, LogIn, LogOut, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export function Header() {
   const { user, login, logout, loading } = useAuth();
+
+  // 프로필 데이터 조회 (username 포함)
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.uid],
+    queryFn: async () => {
+      if (!user) return null;
+      const userRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(userRef);
+      return docSnap.exists() ? docSnap.data() : null;
+    },
+    enabled: !!user,
+  });
+
+  const displayUsername = profile?.username || user?.email?.split('@')[0] || "";
 
   if (loading) {
     return (
@@ -33,9 +50,16 @@ export function Header() {
       <div className="container mx-auto flex h-full items-center justify-between px-4">
         <Link href="/" className="text-xl font-bold tracking-tight">Mylink</Link>
         
-        <div>
+        <div className="flex items-center gap-3">
           {user ? (
-            <DropdownMenu>
+            <>
+              <Button variant="outline" size="sm" asChild className="hidden sm:flex rounded-full px-4 border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700">
+                <Link href={`/${displayUsername}`}>
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  내 페이지
+                </Link>
+              </Button>
+              <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2 px-2 hover:bg-muted">
                   <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden border border-blue-200">
@@ -62,14 +86,14 @@ export function Header() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href={`/${user.uid}`} className="cursor-pointer flex w-full items-center">
+                  <Link href={`/${displayUsername}`} className="cursor-pointer flex w-full items-center">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     <span>내 페이지 미리보기</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => {
-                    const url = `${window.location.origin}/${user.uid}`;
+                    const url = `${window.location.origin}/${displayUsername}`;
                     navigator.clipboard.writeText(url);
                     toast.success("링크가 복사되었습니다 ✨", {
                       description: "이제 원하는 곳에 붙여넣어 공유해 보세요!",
@@ -90,6 +114,7 @@ export function Header() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            </>
           ) : (
             <Button 
               variant="default" 

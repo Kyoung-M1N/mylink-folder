@@ -48,8 +48,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await setDoc(userRef, {
           uid: user.uid, // 임시 고유 ID로 uid 사용
           email: user.email || "",
-          username: user.displayName || "사용자",
-          displayName: user.email ? user.email.split('@')[0] : "user",
+          username: user.email ? user.email.split('@')[0] : "user",
+          displayName: user.displayName || "사용자",
           bio: "안녕하세요! 반갑습니다.",
           photoUrl: user.photoURL || "",
           createdAt: serverTimestamp(),
@@ -59,8 +59,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await setDoc(userRef, {
           uid: user.uid,
           email: user.email || "",
-          username: user.displayName || "사용자",
-          displayName: user.email ? user.email.split('@')[0] : "user",
+          username: user.email ? user.email.split('@')[0] : "user",
+          displayName: user.displayName || "사용자",
         }, { merge: true });
       }
     } catch (error) {
