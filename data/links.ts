@@ -1,8 +1,9 @@
 export interface LinkProps {
-  id: number;
+  id: string | number;
   title: string;
   url: string;
   faviconUrl?: string;
+  clickCount?: number;
   createdAt: string;
 }
 

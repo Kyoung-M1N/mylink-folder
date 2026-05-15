@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Plus, Loader2, Pencil, Trash2, Check, X, AlertTriangle, LogIn } from 'lucide-react';
+import { Plus, Loader2, Pencil, Trash2, Check, X, AlertTriangle, LogIn, MousePointer2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { 
@@ -33,7 +33,8 @@ import {
   updateDoc,
   getDocs,
   getDoc,
-  where
+  where,
+  increment
 } from 'firebase/firestore';
 import { useAuth } from '@/components/auth-provider';
 
@@ -54,6 +55,8 @@ const linkSchema = z.object({
 });
 
 type LinkFormValues = z.infer<typeof linkSchema>;
+
+
 
 const profileSchema = z.object({
   displayName: z.string().trim().min(1, '이름을 입력해주세요.').max(20, '이름은 최대 20자까지 가능합니다.'),
@@ -115,6 +118,22 @@ export default function Page() {
     },
     enabled: !!user,
   });
+
+  // 링크 클릭 핸들러
+  const handleLinkClick = async (linkId: string) => {
+    if (!user || !linkId) return;
+    
+    try {
+      const linkRef = doc(db, 'users', user.uid, 'links', linkId);
+      await updateDoc(linkRef, {
+        clickCount: increment(1)
+      });
+      // 데이터 최신화를 위해 쿼리 무효화
+      queryClient.invalidateQueries({ queryKey: ['links', user.uid] });
+    } catch (error) {
+      console.error('Error updating click count:', error);
+    }
+  };
 
   // 프로필 업데이트 뮤테이션 (낙관적 업데이트)
   const updateProfileMutation = useMutation({
@@ -195,6 +214,7 @@ export default function Page() {
           url: finalUrl,
           faviconUrl,
           createdAt: serverTimestamp(),
+          clickCount: 0,
         });
       }
     },
@@ -620,18 +640,35 @@ export default function Page() {
                   </Card>
                 ) : (
                   <>
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="block">
+                    <a 
+                      href={link.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="block"
+                      onClick={() => handleLinkClick(link.id.toString())}
+                    >
                       <Card className="transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg border border-border/50 bg-card/60 backdrop-blur-md overflow-hidden relative">
                         <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-full" />
                         <CardContent className="p-4 flex items-center gap-4">
-                          <div className="w-10 h-10 rounded bg-muted/50 p-1.5 flex items-center justify-center ring-1 ring-border shadow-sm group-hover:bg-background transition-colors">
+                          <div className="w-10 h-10 rounded bg-muted/50 p-1.5 flex items-center justify-center ring-1 ring-border shadow-sm group-hover:bg-background transition-colors shrink-0">
                             {link.faviconUrl ? (
                               <img src={link.faviconUrl} alt={`${link.title} 파비콘`} className="w-full h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.classList.add('fallback-icon'); }} />
                             ) : (
                               <span className="text-xs text-muted-foreground font-semibold">?</span>
                             )}
                           </div>
-                          <h2 className="text-[15px] font-semibold flex-1 text-foreground/90 group-hover:text-foreground text-center pr-10">{link.title}</h2>
+                          <div className="flex-1 min-w-0 flex flex-col items-center">
+                            <h2 className="text-[15px] font-semibold text-foreground/90 group-hover:text-foreground text-center truncate w-full">
+                              {link.title}
+                            </h2>
+                            {(link as any).clickCount > 0 && (
+                              <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground opacity-60">
+                                <MousePointer2 className="h-2.5 w-2.5" />
+                                <span>{(link as any).clickCount.toLocaleString()} clicks</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="w-10 shrink-0" />
                         </CardContent>
                       </Card>
                     </a>

@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 사용자 프로필 규칙
+    match /users/{uid} {
+      allow read: if true;
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update: if request.auth != null && request.auth.uid == uid && request.resource.data.username == resource.data.username;
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // 사용자 하위 링크 컬렉션 규칙
+    match /users/{uid}/links/{linkId} {
+      allow read: if true;
+      // 생성 및 삭제는 소유자만 가능
+      allow create, delete: if request.auth != null && request.auth.uid == uid;
+      
+      // 업데이트 규칙
+      allow update: if 
+        // 1. 소유자인 경우 모든 필드 업데이트 허용
+        (request.auth != null && request.auth.uid == uid) || 
+        // 2. 방문자인 경우 clickCount 필드만 1씩 증가시키는 것만 허용
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clickCount']) &&
+          request.resource.data.clickCount == resource.data.get('clickCount', 0) + 1
+        );
+    }
+  }
+}

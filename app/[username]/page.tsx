@@ -8,11 +8,14 @@ import {
   orderBy,
   getDocs,
   where,
-  limit
+  limit,
+  doc,
+  updateDoc,
+  increment
 } from 'firebase/firestore';
 import { useParams, notFound } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Loader2, MousePointer2 } from 'lucide-react';
 import { LinkProps } from '@/data/links';
 
 export default function PublicProfilePage() {
@@ -58,6 +61,20 @@ export default function PublicProfilePage() {
     },
     enabled: !!profile?.uid,
   });
+
+  // 링크 클릭 핸들러
+  const handleLinkClick = async (linkId: string) => {
+    if (!profile?.uid || !linkId) return;
+    
+    try {
+      const linkRef = doc(db, 'users', profile.uid, 'links', linkId);
+      await updateDoc(linkRef, {
+        clickCount: increment(1)
+      });
+    } catch (error) {
+      console.error('Error updating click count:', error);
+    }
+  };
 
   if (isProfileLoading) {
     return (
@@ -120,11 +137,12 @@ export default function PublicProfilePage() {
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="block group"
+                onClick={() => handleLinkClick(link.id.toString())}
               >
                 <Card className="transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg border border-border/50 bg-card/60 backdrop-blur-md overflow-hidden relative">
                   <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-full" />
                   <CardContent className="p-4 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded bg-muted/50 p-1.5 flex items-center justify-center ring-1 ring-border shadow-sm group-hover:bg-background transition-colors">
+                    <div className="w-10 h-10 rounded bg-muted/50 p-1.5 flex items-center justify-center ring-1 ring-border shadow-sm group-hover:bg-background transition-colors shrink-0">
                       {link.faviconUrl ? (
                         <img 
                           src={link.faviconUrl} 
@@ -139,9 +157,18 @@ export default function PublicProfilePage() {
                         <span className="text-xs text-muted-foreground font-semibold">?</span>
                       )}
                     </div>
-                    <h2 className="text-[15px] font-semibold flex-1 text-foreground/90 group-hover:text-foreground text-center pr-10">
-                      {link.title}
-                    </h2>
+                    <div className="flex-1 min-w-0 flex flex-col items-center">
+                      <h2 className="text-[15px] font-semibold text-foreground/90 group-hover:text-foreground text-center truncate w-full">
+                        {link.title}
+                      </h2>
+                      {(link as any).clickCount > 0 && (
+                        <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground opacity-60">
+                          <MousePointer2 className="h-2.5 w-2.5" />
+                          <span>{(link as any).clickCount.toLocaleString()} clicks</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="w-10 shrink-0" /> {/* 좌측 아이콘 대칭용 공간 */}
                   </CardContent>
                 </Card>
               </a>
