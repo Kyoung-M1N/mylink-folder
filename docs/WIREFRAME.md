@@ -12,8 +12,9 @@
 +-------------------------------------------------+
 |                                                 |
 |                   [프로필 이미지]                    |
-|                 @개발자_Alex (닉네임)                  |
-|            "Front-End Developer | React"        |
+|                @username (유저네임)                  |
+|            "Display Name (표시 이름)"            |
+|            "Bio (한 줄 소개 문구)"               |
 |                                                 |
 |    [ Github ] [ LinkedIn ] [ Twitter ]          |
 |                                                 |
@@ -42,10 +43,10 @@
 
 ```text
 +---------------------------------------------------------------------------------+
-| [Mylink 로고]      [링크] [디자인] [통계] [설정]                       유저프로필(로그아웃) |
+| [Mylink 로고]                                             [내 페이지] [유저프로필] |
 +---------------------------------------------------------------------------------+
 |                                                                                 |
-|  [ 사용자 URL 복사하기: mylink.com/alex ]                                          |
+|  [ 사용자 URL 복사하기: mylink.com/username ]                                       |
 |                                                                                 |
 |  +-------------------------------------------------------------------------+    |
 |  | 프로필 셋업                                                               |    |
@@ -80,7 +81,7 @@ flowchart TD
     Owner([관리자 / 서비스 소유자])
     
     PublicView(퍼블릭 방문자 뷰<br/>mylink.com/username)
-    AdminDashboard(관리자 대시보드 뷰)
+    AdminDashboard(관리자 대시보드 - 메인 페이지)
     ExternalLink[외부 링크 이동<br/>Github, 블로그 등]
     Login[로그인 / 회원가입 페이지]
     
@@ -88,7 +89,8 @@ flowchart TD
     Visitor -->|공유된 URL 접속| PublicView
     PublicView -->|등록된 링크 클릭| ExternalLink
     
-    Owner -->|관리자 페이지 접근| Login
+    Owner -->|홈페이지 접속| AdminDashboard
+    AdminDashboard -->|로그인 안됨| Login
     Login -->|인증 성공| AdminDashboard
     
     AdminDashboard -->|1. 프로필 정보 수정| AdminDashboard
