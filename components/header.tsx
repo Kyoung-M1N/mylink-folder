@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, Copy, ExternalLink, LogIn, LogOut, User as UserIcon } from "lucide-react";
+import { BarChart3, ChevronDown, Copy, ExternalLink, LogIn, LogOut, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
@@ -59,6 +59,7 @@ export function Header() {
                   내 페이지
                 </Link>
               </Button>
+
               <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2 px-2 hover:bg-muted">
@@ -89,6 +90,12 @@ export function Header() {
                   <Link href={`/${displayUsername}`} className="cursor-pointer flex w-full items-center">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     <span>내 페이지 미리보기</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/stats" className="cursor-pointer flex w-full items-center text-purple-600 focus:text-purple-600 focus:bg-purple-50">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    <span>클릭 통계 보기</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
