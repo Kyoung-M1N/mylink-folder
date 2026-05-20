@@ -141,34 +141,42 @@ export default function PublicProfilePage() {
               >
                 <Card className="transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg border border-border/50 bg-card/60 backdrop-blur-md overflow-hidden relative">
                   <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 group-hover:w-full" />
-                  <CardContent className="p-4 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded bg-muted/50 p-1.5 flex items-center justify-center ring-1 ring-border shadow-sm group-hover:bg-background transition-colors shrink-0">
-                      {link.faviconUrl ? (
-                        <img 
-                          src={link.faviconUrl} 
-                          alt={`${link.title} 파비콘`} 
-                          className="w-full h-full object-contain" 
-                          onError={(e) => { 
-                            e.currentTarget.style.display = 'none'; 
-                            e.currentTarget.parentElement?.classList.add('fallback-icon'); 
-                          }} 
-                        />
-                      ) : (
-                        <span className="text-xs text-muted-foreground font-semibold">?</span>
-                      )}
+                  <CardContent className="p-4 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                      <div className="w-10 h-10 rounded-xl bg-muted/20 p-1.5 flex items-center justify-center border border-border/50 shrink-0 group-hover:bg-background transition-colors">
+                        {link.faviconUrl ? (
+                          <img 
+                            src={link.faviconUrl} 
+                            alt={`${link.title} 파비콘`} 
+                            className="w-full h-full object-contain" 
+                            onError={(e) => { 
+                              e.currentTarget.style.display = 'none'; 
+                              e.currentTarget.parentElement?.classList.add('fallback-icon'); 
+                            }} 
+                          />
+                        ) : (
+                          <span className="text-xs text-muted-foreground font-semibold">?</span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 text-left">
+                        <h2 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
+                          {link.title}
+                        </h2>
+                        <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                          {link.url.replace(/^(https?:\/\/)?(www\.)?/, '')}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0 flex flex-col items-center">
-                      <h2 className="text-[15px] font-semibold text-foreground/90 group-hover:text-foreground text-center truncate w-full">
-                        {link.title}
-                      </h2>
-                      {(link as any).clickCount > 0 && (
-                        <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground opacity-60">
-                          <MousePointer2 className="h-2.5 w-2.5" />
-                          <span>{(link as any).clickCount.toLocaleString()} clicks</span>
+                    {((link as any).clickCount || 0) > 0 && (
+                      <div className="flex items-center shrink-0">
+                        <div className="flex items-center gap-1 bg-muted/40 px-2.5 py-1 rounded-full border border-border/50 transition-all duration-300">
+                          <MousePointer2 className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-xs font-mono font-bold text-foreground">
+                            {((link as any).clickCount || 0).toLocaleString()}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                    <div className="w-10 shrink-0" /> {/* 좌측 아이콘 대칭용 공간 */}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </a>

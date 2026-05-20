@@ -118,28 +118,52 @@ export default function StatsPage() {
             </div>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 gap-8">
-            {/* 총 클릭수 요약 카드 */}
-            <Card className="border-border/50 bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-xl overflow-hidden rounded-3xl relative">
-              <div className="absolute right-0 top-0 translate-x-6 -translate-y-6 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-              <CardContent className="p-8 sm:p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-blue-100 tracking-wide uppercase flex items-center gap-1.5">
-                    <TrendingUp className="h-4 w-4" /> 전체 링크 총 합산 클릭수
-                  </p>
-                  <h2 className="text-5xl sm:text-6xl font-extrabold tracking-tight">
-                    {totalClicks.toLocaleString()}
-                    <span className="text-2xl sm:text-3xl font-bold text-blue-200 ml-2">회</span>
-                  </h2>
-                  <p className="text-xs text-blue-100/80 pt-1">
-                    총 {links.length}개의 링크에서 발생한 누적 클릭 데이터입니다.
-                  </p>
-                </div>
-                <div className="h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shrink-0 shadow-inner">
-                  <MousePointer2 className="h-8 w-8 text-white" />
-                </div>
-              </CardContent>
-            </Card>
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 총 클릭수 요약 카드 */}
+              <Card className="border-border/50 bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-xl overflow-hidden rounded-3xl relative">
+                <div className="absolute right-0 top-0 translate-x-6 -translate-y-6 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+                <CardContent className="p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10 h-full">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-blue-100 tracking-wide uppercase flex items-center gap-1.5">
+                      <TrendingUp className="h-4 w-4" /> 전체 링크 총 합산 클릭수
+                    </p>
+                    <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
+                      {totalClicks.toLocaleString()}
+                      <span className="text-xl sm:text-2xl font-bold text-blue-200 ml-2">회</span>
+                    </h2>
+                    <p className="text-xs text-blue-100/80 pt-1">
+                      총 {links.length}개의 링크에서 발생한 누적 클릭 데이터입니다.
+                    </p>
+                  </div>
+                  <div className="h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shrink-0 shadow-inner">
+                    <MousePointer2 className="h-7 w-7 text-white" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 활성 링크 수 카드 */}
+              <Card className="border-border/50 bg-gradient-to-br from-indigo-600 to-purple-700 text-white shadow-xl overflow-hidden rounded-3xl relative">
+                <div className="absolute right-0 top-0 translate-x-6 -translate-y-6 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+                <CardContent className="p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10 h-full">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-indigo-100 tracking-wide uppercase flex items-center gap-1.5">
+                      <ExternalLink className="h-4 w-4" /> 활성 링크 수
+                    </p>
+                    <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
+                      {links.length}
+                      <span className="text-xl sm:text-2xl font-bold text-indigo-200 ml-2">개</span>
+                    </h2>
+                    <p className="text-xs text-indigo-100/80 pt-1">
+                      현재 프로필 페이지에 공개적으로 노출 중인 링크의 개수입니다.
+                    </p>
+                  </div>
+                  <div className="h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shrink-0 shadow-inner">
+                    <ExternalLink className="h-7 w-7 text-white" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* 차트 영역 */}
             <Card className="border-border/50 bg-card/60 backdrop-blur-md shadow-xl rounded-3xl overflow-hidden">
