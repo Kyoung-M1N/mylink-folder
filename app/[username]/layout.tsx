@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: Omit<Props, 'children'>): Pro
 
   const displayName = profile?.displayName || username;
   const bio = profile?.bio || `${displayName}님의 Mylink 프로필 페이지입니다.`;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mylink-folder.vercel.app';
   const ogImageUrl = `${appUrl}/${username}/opengraph-image`;
 
   return {

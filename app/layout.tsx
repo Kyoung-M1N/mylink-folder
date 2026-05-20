@@ -16,7 +16,7 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mylink-folder.vercel.app';
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
